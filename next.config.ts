@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
     // Le build ne doit pas échouer sur une règle de style.
     ignoreDuringBuilds: false,
   },
+  async redirects() {
+    return [
+      // Application interne sans vitrine publique : on tombe directement
+      // sur la connexion plutôt que sur une page d'accueil.
+      { source: "/", destination: "/admin/login", permanent: false },
+    ];
+  },
   async headers() {
     return [
       {

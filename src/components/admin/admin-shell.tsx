@@ -4,7 +4,7 @@ import * as React from "react";
 import { usePathname } from "next/navigation";
 import { Menu } from "lucide-react";
 
-import { AdminSidebar, NAV_ITEMS } from "@/components/admin/admin-sidebar";
+import { AdminSidebar, getNavItems } from "@/components/admin/admin-sidebar";
 import { AccountMenu } from "@/components/admin/account-menu";
 import {
   Sheet,
@@ -34,14 +34,15 @@ export function AdminShell({
   // Le tiroir se referme dès que la route change.
   React.useEffect(() => setDrawerOpen(false), [pathname]);
 
-  const current = NAV_ITEMS.find(
+  const navItems = getNavItems(identity.role);
+  const current = navItems.find(
     (item) => pathname === item.href || pathname.startsWith(`${item.href}/`),
   );
 
   return (
     <div className="min-h-dvh bg-background lg:flex">
       <aside className="sticky top-0 hidden h-dvh w-[17.5rem] shrink-0 bg-sidebar px-4 py-6 lg:block no-print">
-        <AdminSidebar />
+        <AdminSidebar role={identity.role} />
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">
@@ -62,7 +63,7 @@ export function AdminShell({
               <SheetDescription className="sr-only">
                 Accès au tableau de bord, aux experts et au compte.
               </SheetDescription>
-              <AdminSidebar onNavigate={() => setDrawerOpen(false)} />
+              <AdminSidebar role={identity.role} onNavigate={() => setDrawerOpen(false)} />
             </SheetContent>
           </Sheet>
 

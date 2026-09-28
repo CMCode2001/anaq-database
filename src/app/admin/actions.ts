@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { getAdminIdentity } from "@/lib/auth/guards";
+import { createAdmin, setAdminActive } from "@/lib/services/admins";
 import { createExpert, deleteExpert, updateExpert } from "@/lib/services/experts";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { expertFormSchema, toExpertInput } from "@/lib/validation/expert";
@@ -18,6 +19,8 @@ import { expertFormSchema, toExpertInput } from "@/lib/validation/expert";
 export interface ActionState {
   error?: string;
   success?: string;
+  /** Mot de passe temporaire d'un compte administrateur qui vient d'être créé. */
+  tempPassword?: string;
 }
 
 const credentialsSchema = z.object({
@@ -196,4 +199,90 @@ export async function updateExpertAction(
   revalidatePath("/admin/dashboard");
 
   return { success: "La fiche a été mise à jour." };
+}
+
+const createAdminSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, "L'adresse email est obligatoire.")
+    .email("Adresse email invalide."),
+  fullName: z.string().trim().min(2, "Le nom est obligatoire.").max(150),
+  role: z.enum(["admin", "super_admin"]),
+});
+
+/**
+ * Ajoute un compte administrateur (compte Supabase Auth + habilitation).
+ * Réservé aux super-administrateurs : c'est la seule action qui accorde de
+ * nouveaux accès à la plateforme.
+ */
+export async function createAdminAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const identity = await getAdminIdentity();
+  if (!identity || identity.role !== "super_admin") {
+    return { error: "Seuls les super-administrateurs peuvent ajouter un compte." };
+  }
+
+  const parsed = createAdminSchema.safeParse({
+    email: formData.get("email"),
+    fullName: formData.get("fullName"),
+    role: formData.get("role"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Formulaire invalide." };
+  }
+
+  try {
+    const { tempPassword } = await createAdmin(parsed.data);
+    revalidatePath("/admin/team");
+    return {
+      success: `Compte créé pour ${parsed.data.email}.`,
+      tempPassword,
+    };
+  } catch (error) {
+    console.error("[admin/team] création impossible", error);
+    return {
+      error: error instanceof Error ? error.message : "La création du compte a échoué.",
+    };
+  }
+}
+
+const toggleAdminSchema = z.object({
+  userId: z.string().uuid("Identifiant invalide."),
+  isActive: z.enum(["true", "false"]),
+});
+
+export async function toggleAdminActiveAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const identity = await getAdminIdentity();
+  if (!identity || identity.role !== "super_admin") {
+    return { error: "Accès refusé." };
+  }
+
+  const parsed = toggleAdminSchema.safeParse({
+    userId: formData.get("userId"),
+    isActive: formData.get("isActive"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Requête invalide." };
+  }
+
+  try {
+    await setAdminActive(parsed.data.userId, parsed.data.isActive === "true", identity.userId);
+  } catch (error) {
+    console.error("[admin/team] mise à jour impossible", error);
+    return {
+      error: error instanceof Error ? error.message : "La mise à jour a échoué.",
+    };
+  }
+
+  revalidatePath("/admin/team");
+  return { success: "Compte mis à jour." };
 }

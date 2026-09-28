@@ -2,16 +2,31 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, UserRoundPlus, Users } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, UserRoundPlus, Users } from "lucide-react";
 
 import { BrandMark } from "@/components/brand-mark";
+import type { AdminIdentity } from "@/lib/auth/guards";
 import { cn } from "@/lib/utils";
 
-export const NAV_ITEMS = [
+const BASE_NAV_ITEMS = [
   { href: "/admin/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
   { href: "/admin/experts", label: "Experts", icon: Users },
   { href: "/admin/experts/new", label: "Ajouter un expert", icon: UserRoundPlus },
 ] as const;
+
+const SUPER_ADMIN_NAV_ITEMS = [
+  { href: "/admin/team", label: "Administrateurs", icon: ShieldCheck },
+] as const;
+
+const NO_PREFIX_MATCH = new Set<string>(["/admin/experts/new", "/admin/team"]);
+
+/** Liste de navigation visible pour un rôle donné -la gestion des comptes
+ *  n'apparaît que pour les super-administrateurs. */
+export function getNavItems(role: AdminIdentity["role"]) {
+  return role === "super_admin"
+    ? [...BASE_NAV_ITEMS, ...SUPER_ADMIN_NAV_ITEMS]
+    : BASE_NAV_ITEMS;
+}
 
 /**
  * Barre latérale de l’espace d’administration.
@@ -22,8 +37,15 @@ export const NAV_ITEMS = [
  * Le même composant sert au rail fixe du bureau et au tiroir mobile ;
  * `onNavigate` permet à ce dernier de se refermer après un clic.
  */
-export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
+export function AdminSidebar({
+  role,
+  onNavigate,
+}: {
+  role: AdminIdentity["role"];
+  onNavigate?: () => void;
+}) {
   const pathname = usePathname();
+  const items = getNavItems(role);
 
   return (
     <div className="flex h-full flex-col gap-7 bg-sidebar text-sidebar-foreground">
@@ -40,10 +62,10 @@ export function AdminSidebar({ onNavigate }: { onNavigate?: () => void }) {
           Navigation
         </p>
 
-        {NAV_ITEMS.map((item) => {
+        {items.map((item) => {
           const active =
             pathname === item.href ||
-            (item.href !== "/admin/experts/new" && pathname.startsWith(`${item.href}/`));
+            (!NO_PREFIX_MATCH.has(item.href) && pathname.startsWith(`${item.href}/`));
           const Icon = item.icon;
 
           return (

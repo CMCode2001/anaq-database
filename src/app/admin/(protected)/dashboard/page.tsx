@@ -6,6 +6,7 @@ import {
   Globe2,
   GraduationCap,
   LayoutGrid,
+  ShieldCheck,
   UserRoundPlus,
   Users,
 } from "lucide-react";
@@ -47,12 +48,22 @@ export default async function DashboardPage() {
           </p>
         </div>
 
-        <Button asChild variant="navy" size="sm">
-          <Link href="/admin/experts/new">
-            <UserRoundPlus aria-hidden="true" />
-            Ajouter un expert
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          {identity.role === "super_admin" ? (
+            <Button asChild variant="outline" size="sm">
+              <Link href="/admin/team">
+                <ShieldCheck aria-hidden="true" />
+                Gérer les administrateurs
+              </Link>
+            </Button>
+          ) : null}
+          <Button asChild variant="navy" size="sm">
+            <Link href="/admin/experts/new">
+              <UserRoundPlus aria-hidden="true" />
+              Ajouter un expert
+            </Link>
+          </Button>
+        </div>
       </header>
 
       <Suspense fallback={<DashboardSkeleton />}>

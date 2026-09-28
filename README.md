@@ -76,11 +76,15 @@ commentaire dans les trois fichiers de `src/lib/data/`.
 - Fiche détaillée avec la classification appliquée, création et modification
   de fiches, suppression avec confirmation obligatoire.
 - Export **Excel** (`.xlsx`) de la liste filtrée.
+- **Administrateurs** (réservé aux super-administrateurs) : ajout d'un
+  nouveau compte -création du compte Supabase Auth et de son habilitation en
+  un seul geste, mot de passe temporaire affiché une seule fois ; liste des
+  comptes avec activation / désactivation.
 
-**Page publique** (`/`) : présentation sommaire de la plateforme avec accès à
-l'espace administrateur. Aucune donnée personnelle n'est exposée sans
-authentification -RLS PostgreSQL l'interdit même en cas d'oubli côté
-application.
+**Racine du site** (`/`) : redirige directement vers `/admin/login` -pas de
+vitrine publique, l'application est un outil interne. Aucune donnée
+personnelle n'est exposée sans authentification -RLS PostgreSQL l'interdit
+même en cas d'oubli côté application.
 
 ---
 
@@ -177,8 +181,15 @@ SUPABASE_SERVICE_ROLE_KEY=
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-`SUPABASE_SERVICE_ROLE_KEY` est facultative en V1 (aucune route ne l'utilise,
-le parcours administrateur passe par RLS).
+`SUPABASE_SERVICE_ROLE_KEY` -clé **Secret key** dans le nouveau tableau de
+bord Supabase -est nécessaire pour la page **Administrateurs**
+(`/admin/team`) : créer un compte Supabase Auth depuis l'application exige
+cette clé. Le reste de l'application (experts, tableau de bord) fonctionne
+sans elle, via RLS.
+
+> ⚠️ Ne jamais préfixer cette clé par `NEXT_PUBLIC_` ni l'exposer au
+> navigateur : elle contourne entièrement RLS. Le module qui la lit est
+> marqué `server-only`.
 
 ### 5.4 Lancement local
 
