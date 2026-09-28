@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ExternalLink } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
+import { CvPreview } from "@/components/admin/cv-preview";
 import { DeleteExpertDialog } from "@/components/admin/delete-expert-dialog";
 import { ExpertForm } from "@/components/admin/expert-form";
 import { Badge } from "@/components/ui/badge";
@@ -101,25 +102,20 @@ export default async function ExpertDetailPage({
               <dt className="text-muted-foreground">Discipline / spécialité (saisie)</dt>
               <dd className="font-medium text-foreground">{expert.specialtyRaw}</dd>
             </div>
-            {expert.cvUrl ? (
-              <div className="sm:col-span-2">
-                <dt className="text-muted-foreground">CV</dt>
-                <dd>
-                  <a
-                    href={expert.cvUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 font-medium text-gold-ink hover:underline"
-                  >
-                    Ouvrir le document
-                    <ExternalLink className="size-3.5" aria-hidden="true" />
-                  </a>
-                </dd>
-              </div>
-            ) : null}
           </dl>
         </CardContent>
       </Card>
+
+      {expert.cvUrl ? (
+        <Card>
+          <CardHeader>
+            <CardTitle>CV</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CvPreview url={expert.cvUrl} />
+          </CardContent>
+        </Card>
+      ) : null}
 
       <Card>
         <CardHeader>
