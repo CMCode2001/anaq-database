@@ -4,13 +4,32 @@
  */
 
 export const ORG = {
-  shortName: "QA-Doc",
-  name: "Réseau des experts QA-Doc",
-  nameCompact: "Experts QA-Doc",
+  shortName: "ANAQ-Sup",
+  /** Dénomination officielle complète. */
+  name: "Autorité nationale d'Assurance Qualité de l'Enseignement supérieur, de la Recherche et de l'Innovation",
+  nameCompact: "Assurance Qualité de l'Enseignement supérieur",
   appTitle: "Base des experts QA-Doc",
   appSubtitle:
     "Répartition, recherche et gestion du réseau d'experts évaluateurs.",
+  /** Logo officiel, utilisé à l'écran et en favicon. */
+  logoPath: "/logo-anaqsup.png",
+  /**
+   * Favicon fourni : toque universitaire blanche sur fond transparent.
+   * Lisible sur une barre d'onglets sombre, invisible sur une barre claire.
+   */
+  faviconDark: "/favicon_anaq.png",
+  /**
+   * Même toque composée sur le marine institutionnel, pour les navigateurs
+   * en thème clair.
+   */
+  faviconLight: "/favicon-anaq-clair.png",
+  /** Dimensions natives du logo, pour préserver ses proportions. */
+  logoWidth: 801,
+  logoHeight: 304,
 } as const;
+
+/** Rapport largeur / hauteur du logo officiel. */
+export const LOGO_RATIO = ORG.logoWidth / ORG.logoHeight;
 
 export const PAGE_SIZE_DEFAULT = 20;
 export const PAGE_SIZE_OPTIONS = [10, 20, 50, 100] as const;

@@ -1,20 +1,25 @@
-import { ORG } from "@/lib/constants";
+import Image from "next/image";
+
+import { LOGO_RATIO, ORG } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
 interface BrandMarkProps {
-  /** Hauteur du badge en pixels. */
+  /** Hauteur du logo en pixels ; la largeur suit les proportions natives. */
   height?: number;
   className?: string;
-  /** Affiche la dénomination complète à côté du badge. */
+  /** Affiche la denomination officielle a cote du logo. */
   tagline?: boolean;
-  /** Empile le libellé sous le badge plutôt qu'à sa droite (barre latérale). */
+  /** Empile le libelle sous le logo plutot qu'a sa droite (barre laterale). */
   stacked?: boolean;
 }
 
 /**
- * Marque de l'application : un badge monogramme (pas de logo officiel fourni)
- * plutôt qu'une image, pour ne pas dépendre d'un fichier binaire versionné.
- * Remplacer par un vrai logo en éditant simplement ce composant.
+ * Logo officiel ANAQ-Sup.
+ *
+ * Logotype horizontal : les proportions natives ({@link ORG.logoWidth} x
+ * {@link ORG.logoHeight}) sont toujours respectees. Pour changer de logo,
+ * remplacer `public/logo-anaqsup.png` et ajuster `logoWidth` / `logoHeight`
+ * dans `src/lib/constants.ts`.
  */
 export function BrandMark({
   height = 38,
@@ -22,7 +27,7 @@ export function BrandMark({
   tagline = false,
   stacked = false,
 }: BrandMarkProps) {
-  const fontSize = Math.round(height * 0.42);
+  const width = Math.round(height * LOGO_RATIO);
 
   return (
     <span
@@ -32,32 +37,28 @@ export function BrandMark({
         className,
       )}
     >
-      <span className="inline-flex items-center gap-2">
-        <span
-          aria-hidden="true"
-          className="flex shrink-0 items-center justify-center rounded-2xl bg-navy font-bold text-primary"
-          style={{ height, width: height, fontSize }}
-        >
-          QA
-        </span>
-        <span
-          className="font-bold tracking-tight text-foreground"
-          style={{ fontSize: Math.round(height * 0.46) }}
-        >
-          {ORG.shortName}
-        </span>
-      </span>
+      <Image
+        src={ORG.logoPath}
+        alt={`Logo ${ORG.shortName}`}
+        width={width}
+        height={height}
+        priority
+        sizes={`${width}px`}
+      />
 
       {tagline ? (
         <span
           className={cn(
             "text-[11px] font-light leading-snug text-muted-foreground",
+            // Masque sous 640 px : la denomination officielle est trop longue
+            // pour un telephone, ou seul le logotype fait sens.
             stacked
               ? "block"
-              : "hidden sm:block sm:max-w-[22rem] sm:border-l sm:border-border sm:pl-3",
+              : "hidden sm:block sm:max-w-[26rem] sm:border-l sm:border-border sm:pl-3",
           )}
         >
-          {ORG.name}
+          <span className="hidden lg:inline">{ORG.name}</span>
+          <span className="lg:hidden">{ORG.nameCompact}</span>
         </span>
       ) : null}
     </span>
