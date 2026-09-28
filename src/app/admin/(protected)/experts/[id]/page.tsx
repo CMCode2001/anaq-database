@@ -14,7 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { formatFullName } from "@/lib/utils";
 import { getExpert } from "@/lib/services/experts";
 
@@ -130,8 +129,6 @@ export default async function ExpertDetailPage({
           <ExpertForm expert={expert} />
         </CardContent>
       </Card>
-
-      <Separator className="opacity-0" aria-hidden="true" />
 
       <div className="pb-6">
         <Button asChild variant="ghost" size="sm">
