@@ -52,9 +52,7 @@ export default async function LoginPage({
         <Card>
           <CardHeader>
             <CardTitle>Connexion</CardTitle>
-            <CardDescription>
-              Accès réservé aux agents habilités du réseau QA-Doc.
-            </CardDescription>
+            <CardDescription>Accès réservé aux agents habilités.</CardDescription>
           </CardHeader>
           <CardContent>
             <LoginForm redirectTo={redirect} />

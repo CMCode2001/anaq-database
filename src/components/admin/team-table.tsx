@@ -7,6 +7,8 @@ import { Loader2, Power } from "lucide-react";
 import { toast } from "sonner";
 
 import { toggleAdminActiveAction, type ActionState } from "@/app/admin/actions";
+import { DeleteAdminDialog } from "@/components/admin/delete-admin-dialog";
+import { EditAdminDialog } from "@/components/admin/edit-admin-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -39,17 +41,13 @@ function ToggleSubmitButton({ isActive }: { isActive: boolean }) {
   );
 }
 
-function ToggleButton({ admin, isSelf }: { admin: AdminAccount; isSelf: boolean }) {
+function ToggleButton({ admin }: { admin: AdminAccount }) {
   const [state, formAction] = useActionState<ActionState, FormData>(toggleAdminActiveAction, {});
 
   useEffect(() => {
     if (state.error) toast.error("Échec", { description: state.error });
     else if (state.success) toast.success(state.success);
   }, [state]);
-
-  if (isSelf) {
-    return <span className="text-xs text-muted-foreground">Votre compte</span>;
-  }
 
   return (
     <form action={formAction}>
@@ -100,7 +98,20 @@ export function TeamTable({
               </TableCell>
               <TableCell className="text-muted-foreground">{formatDate(admin.created_at)}</TableCell>
               <TableCell className="text-right">
-                <ToggleButton admin={admin} isSelf={admin.user_id === currentUserId} />
+                <div className="flex items-center justify-end gap-1">
+                  <EditAdminDialog admin={admin} />
+                  {admin.user_id === currentUserId ? (
+                    <span className="text-xs text-muted-foreground">Votre compte</span>
+                  ) : (
+                    <>
+                      <ToggleButton admin={admin} />
+                      <DeleteAdminDialog
+                        adminId={admin.user_id}
+                        adminName={admin.full_name ?? admin.email ?? "cet administrateur"}
+                      />
+                    </>
+                  )}
+                </div>
               </TableCell>
             </TableRow>
           ))}

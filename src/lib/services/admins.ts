@@ -86,6 +86,18 @@ export async function createAdmin(
   return { password, generated };
 }
 
+type AdminClient = ReturnType<typeof createAdminClient>;
+
+async function countActiveSuperAdmins(client: AdminClient): Promise<number> {
+  const { count } = await client
+    .from("admin_users")
+    .select("user_id", { count: "exact", head: true })
+    .eq("role", "super_admin")
+    .eq("is_active", true);
+
+  return count ?? 0;
+}
+
 export async function setAdminActive(
   userId: string,
   isActive: boolean,
@@ -104,18 +116,10 @@ export async function setAdminActive(
       .eq("user_id", userId)
       .maybeSingle();
 
-    if (target?.role === "super_admin") {
-      const { count } = await client
-        .from("admin_users")
-        .select("user_id", { count: "exact", head: true })
-        .eq("role", "super_admin")
-        .eq("is_active", true);
-
-      if ((count ?? 0) <= 1) {
-        throw new AdminManagementError(
-          "Impossible de désactiver le dernier super-administrateur actif.",
-        );
-      }
+    if (target?.role === "super_admin" && (await countActiveSuperAdmins(client)) <= 1) {
+      throw new AdminManagementError(
+        "Impossible de désactiver le dernier super-administrateur actif.",
+      );
     }
   }
 
@@ -126,5 +130,96 @@ export async function setAdminActive(
 
   if (error) {
     throw new AdminManagementError("La mise à jour du compte a échoué.");
+  }
+}
+
+export interface UpdateAdminInput {
+  email: string;
+  fullName: string;
+  role: "admin" | "super_admin";
+}
+
+export async function updateAdmin(
+  userId: string,
+  input: UpdateAdminInput,
+  actingUserId: string,
+): Promise<void> {
+  const client = createAdminClient();
+
+  const { data: current } = await client
+    .from("admin_users")
+    .select("email, role, is_active")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (!current) {
+    throw new AdminManagementError("Ce compte n'existe plus.");
+  }
+
+  const losesLastSuperAdmin =
+    userId === actingUserId &&
+    current.role === "super_admin" &&
+    current.is_active &&
+    input.role !== "super_admin";
+
+  if (losesLastSuperAdmin && (await countActiveSuperAdmins(client)) <= 1) {
+    throw new AdminManagementError(
+      "Impossible de retirer votre propre rôle de super-administrateur : vous êtes le seul actif.",
+    );
+  }
+
+  if (input.email !== current.email) {
+    const { error: authError } = await client.auth.admin.updateUserById(userId, {
+      email: input.email,
+      email_confirm: true,
+    });
+
+    if (authError) {
+      throw new AdminManagementError(
+        authError.message.toLowerCase().includes("already")
+          ? "Un compte existe déjà avec cet email."
+          : "Impossible de mettre à jour cet email.",
+      );
+    }
+  }
+
+  const { error } = await client
+    .from("admin_users")
+    .update({ email: input.email, full_name: input.fullName, role: input.role })
+    .eq("user_id", userId);
+
+  if (error) {
+    throw new AdminManagementError("La mise à jour du compte a échoué.");
+  }
+}
+
+export async function deleteAdmin(userId: string, actingUserId: string): Promise<void> {
+  if (userId === actingUserId) {
+    throw new AdminManagementError("Vous ne pouvez pas supprimer votre propre compte.");
+  }
+
+  const client = createAdminClient();
+
+  const { data: target } = await client
+    .from("admin_users")
+    .select("role, is_active")
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (
+    target?.role === "super_admin" &&
+    target.is_active &&
+    (await countActiveSuperAdmins(client)) <= 1
+  ) {
+    throw new AdminManagementError("Impossible de supprimer le dernier super-administrateur actif.");
+  }
+
+  // La suppression du compte Supabase Auth entraîne celle de sa ligne
+  // admin_users (contrainte ON DELETE CASCADE, migration 0001) : inutile de
+  // supprimer les deux lignes séparément.
+  const { error } = await client.auth.admin.deleteUser(userId);
+
+  if (error) {
+    throw new AdminManagementError("La suppression du compte a échoué.");
   }
 }

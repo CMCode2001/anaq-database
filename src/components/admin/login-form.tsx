@@ -48,7 +48,7 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
           type="email"
           inputMode="email"
           autoComplete="username"
-          placeholder="admin@qadoc.org"
+          placeholder="votre email"
           required
         />
       </FormField>

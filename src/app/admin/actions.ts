@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { getAdminIdentity } from "@/lib/auth/guards";
-import { createAdmin, setAdminActive } from "@/lib/services/admins";
+import { createAdmin, deleteAdmin, setAdminActive, updateAdmin } from "@/lib/services/admins";
 import { createExpert, deleteExpert, updateExpert } from "@/lib/services/experts";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { expertFormSchema, toExpertInput } from "@/lib/validation/expert";
@@ -301,4 +301,84 @@ export async function toggleAdminActiveAction(
 
   revalidatePath("/admin/team");
   return { success: "Compte mis à jour." };
+}
+
+const updateAdminSchema = z.object({
+  userId: z.string().uuid("Identifiant invalide."),
+  email: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, "L'adresse email est obligatoire.")
+    .email("Adresse email invalide."),
+  fullName: z.string().trim().min(2, "Le nom est obligatoire.").max(150),
+  role: z.enum(["admin", "super_admin"]),
+});
+
+export async function updateAdminAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const identity = await getAdminIdentity();
+  if (!identity || identity.role !== "super_admin") {
+    return { error: "Seuls les super-administrateurs peuvent modifier un compte." };
+  }
+
+  const parsed = updateAdminSchema.safeParse({
+    userId: formData.get("userId"),
+    email: formData.get("email"),
+    fullName: formData.get("fullName"),
+    role: formData.get("role"),
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Formulaire invalide." };
+  }
+
+  try {
+    await updateAdmin(
+      parsed.data.userId,
+      { email: parsed.data.email, fullName: parsed.data.fullName, role: parsed.data.role },
+      identity.userId,
+    );
+  } catch (error) {
+    console.error("[admin/team] modification impossible", error);
+    return {
+      error: error instanceof Error ? error.message : "La modification du compte a échoué.",
+    };
+  }
+
+  revalidatePath("/admin/team");
+  return { success: "Compte modifié." };
+}
+
+const deleteAdminSchema = z.object({
+  userId: z.string().uuid("Identifiant invalide."),
+});
+
+export async function deleteAdminAction(
+  _prevState: ActionState,
+  formData: FormData,
+): Promise<ActionState> {
+  const identity = await getAdminIdentity();
+  if (!identity || identity.role !== "super_admin") {
+    return { error: "Accès refusé." };
+  }
+
+  const parsed = deleteAdminSchema.safeParse({ userId: formData.get("userId") });
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Requête invalide." };
+  }
+
+  try {
+    await deleteAdmin(parsed.data.userId, identity.userId);
+  } catch (error) {
+    console.error("[admin/team] suppression impossible", error);
+    return {
+      error: error instanceof Error ? error.message : "La suppression du compte a échoué.",
+    };
+  }
+
+  revalidatePath("/admin/team");
+  return { success: "Compte supprimé." };
 }
