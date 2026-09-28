@@ -34,7 +34,7 @@ const NUMBER_FORMATTER = new Intl.NumberFormat("fr-FR");
 export function StatCard({ label, value, icon, tone = "gold" }: StatCardProps) {
   return (
     <Card className="min-w-0 transition-shadow hover:shadow-md">
-      <CardContent className="flex h-[4.5rem] items-center gap-3 px-4 py-0">
+      <CardContent className="flex h-[4.5rem] items-center gap-3 px-4 py-0 sm:px-4 sm:py-0">
         <span
           aria-hidden="true"
           className={cn(
