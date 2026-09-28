@@ -1,0 +1,185 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+/* ==========================================================================
+   QA-Doc -identité visuelle
+   ---------------------------------------------------------------------------
+   Deux couleurs portent toute l'interface :
+     · l'or institutionnel #c29e16  → actions, accents, graphiques
+     · le marine profond   #042244  → encre, titres, éléments structurants
+   Aucun bleu clair : le seul bleu autorisé est le marine.
+
+   Contrastes vérifiés (WCAG AA) :
+     or #c29e16 + marine #042244 ....... 6,2:1  (texte des boutons)
+     marine #042244 sur blanc .......... 15,9:1 (texte courant)
+     or foncé #8a6f0f sur blanc ........ 4,8:1  (texte doré sur fond clair)
+   L'or pur ne sert jamais de couleur de texte sur fond clair (2,6:1).
+   ========================================================================== */
+
+:root {
+  /* Rayon généreux : l'interface est entièrement en formes arrondies. */
+  --radius: 1rem;
+
+  --background: #f6f7f9;
+  --foreground: #042244;
+
+  --card: #ffffff;
+  --card-foreground: #042244;
+
+  --popover: #ffffff;
+  --popover-foreground: #042244;
+
+  /* Or QA-Doc : couleur d'action (boutons, états actifs) */
+  --primary: #c29e16;
+  --primary-foreground: #042244;
+
+  /* Or lisible en texte sur fond clair */
+  --gold-ink: #8a6f0f;
+  /* Or très pâle, pour les aplats discrets */
+  --gold-soft: #fbf3da;
+
+  /* Marine profond : encre et surfaces structurantes */
+  --navy: #042244;
+  --navy-foreground: #ffffff;
+  --navy-soft: #e8edf3;
+
+  --secondary: #edf0f4;
+  --secondary-foreground: #042244;
+
+  --muted: #f1f3f6;
+  --muted-foreground: #5b6b7f;
+
+  --accent: #fbf3da;
+  --accent-foreground: #042244;
+
+  --destructive: #b3261e;
+  --destructive-foreground: #ffffff;
+
+  --success: #1f7a4d;
+  --success-foreground: #ffffff;
+
+  --border: #e3e7ec;
+  --input: #d6dce4;
+  --ring: #042244;
+
+  /* Deux familles seulement : or et marine. */
+  --chart-1: #c29e16;
+  --chart-2: #042244;
+  --chart-3: #d9bc55;
+  --chart-4: #2b5378;
+  --chart-5: #8a6f0f;
+
+  /* Barre laterale : bleu de nuit.
+     Contrastes sur le fond #042244 :
+       texte      #e8eef6 -> 14,2:1
+       secondaire #93a9c4 ->  6,1:1
+       actif      or #c29e16 avec libelle marine -> 6,2:1 */
+  --sidebar: #0a1524;
+  --sidebar-foreground: #ffffff;
+  --sidebar-muted: #9bb0c9;
+  --sidebar-border: rgb(255 255 255 / 10%);
+  --sidebar-hover: rgb(255 255 255 / 6%);
+  --sidebar-active: #14243c;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-gold-ink: var(--gold-ink);
+  --color-gold-soft: var(--gold-soft);
+  --color-navy: var(--navy);
+  --color-navy-foreground: var(--navy-foreground);
+  --color-navy-soft: var(--navy-soft);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-muted: var(--sidebar-muted);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-hover: var(--sidebar-hover);
+  --color-sidebar-active: var(--sidebar-active);
+
+  --radius-sm: calc(var(--radius) - 0.5rem);
+  --radius-md: calc(var(--radius) - 0.25rem);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 0.25rem);
+
+  --font-sans: var(--font-poppins), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-feature-settings: "cv11", "ss01";
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Anneau de focus visible : exigence d'accessibilité. */
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+
+  /* Les champs obligatoires sont signalés par un astérisque rouge. */
+  .required-marker::after {
+    content: " *";
+    color: var(--destructive);
+    font-weight: 600;
+  }
+}
+
+@layer utilities {
+  /* Voile doré très discret en haut des pages publiques. */
+  .bg-institutional {
+    background-image:
+      radial-gradient(
+        68rem 30rem at 50% -14rem,
+        color-mix(in oklab, var(--primary) 14%, transparent),
+        transparent
+      ),
+      linear-gradient(to bottom, var(--background), var(--background));
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+}
