@@ -37,6 +37,12 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
     {},
   );
 
+  // Champs contrôlés : un <form action={...}> vide les champs non contrôlés
+  // après chaque soumission, y compris en cas d'échec. En cas d'identifiants
+  // incorrects, on veut que la personne corrige juste le mauvais champ.
+  const [email, setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+
   return (
     <form action={formAction} className="space-y-5">
       <input type="hidden" name="redirectTo" value={redirectTo ?? ""} />
@@ -49,6 +55,8 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
           inputMode="email"
           autoComplete="username"
           placeholder="votre email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
           required
         />
       </FormField>
@@ -59,6 +67,8 @@ export function LoginForm({ redirectTo }: { redirectTo?: string }) {
           name="password"
           autoComplete="current-password"
           placeholder="••••••••"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
           required
         />
       </FormField>

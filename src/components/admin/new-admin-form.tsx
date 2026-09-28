@@ -36,14 +36,31 @@ function SubmitButton() {
  * dans `admin_users` -aucune étape manuelle dans le tableau de bord Supabase.
  * Le mot de passe peut être choisi ici même ; laissé vide, un mot de passe
  * temporaire est généré côté serveur et affiché une seule fois.
+ *
+ * Champs contrôlés : un <form action={...}> vide les champs non contrôlés
+ * après chaque soumission, y compris en cas d'erreur -on ne veut pas faire
+ * retaper le formulaire entier pour corriger un seul champ. Le formulaire
+ * n'est vidé explicitement qu'après une création réussie.
  */
 export function NewAdminForm() {
   const [state, formAction] = useActionState<ActionState, FormData>(createAdminAction, {});
   const [copied, setCopied] = useState(false);
 
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("admin");
+
   useEffect(() => {
-    if (state.error) toast.error("Échec de la création", { description: state.error });
-    else if (state.success && !state.tempPassword) toast.success(state.success);
+    if (state.error) {
+      toast.error("Échec de la création", { description: state.error });
+    } else if (state.success) {
+      if (!state.tempPassword) toast.success(state.success);
+      setFullName("");
+      setEmail("");
+      setPassword("");
+      setRole("admin");
+    }
     setCopied(false);
   }, [state]);
 
@@ -58,7 +75,14 @@ export function NewAdminForm() {
       <form action={formAction} className="space-y-4">
         <div className="grid gap-4 sm:grid-cols-2">
           <FormField id="fullName" label="Nom complet" required>
-            <Input id="fullName" name="fullName" required placeholder="Prénom Nom" />
+            <Input
+              id="fullName"
+              name="fullName"
+              required
+              placeholder="Prénom Nom"
+              value={fullName}
+              onChange={(event) => setFullName(event.target.value)}
+            />
           </FormField>
 
           <FormField id="email" label="Adresse email" required>
@@ -68,6 +92,8 @@ export function NewAdminForm() {
               type="email"
               required
               placeholder="nom@organisation.org"
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
             />
           </FormField>
         </div>
@@ -84,6 +110,8 @@ export function NewAdminForm() {
               minLength={8}
               placeholder="8 caractères minimum"
               autoComplete="new-password"
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
             />
           </FormField>
 
@@ -91,7 +119,8 @@ export function NewAdminForm() {
             <select
               id="role"
               name="role"
-              defaultValue="admin"
+              value={role}
+              onChange={(event) => setRole(event.target.value)}
               className={cn(
                 "flex h-11 w-full rounded-full border border-input bg-card px-6 text-sm shadow-sm transition-colors",
                 "hover:border-primary/60",

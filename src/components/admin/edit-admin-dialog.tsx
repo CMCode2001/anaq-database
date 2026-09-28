@@ -34,11 +34,32 @@ function SaveButton() {
   );
 }
 
-/** Modification du nom, de l'email ou du rôle d'un administrateur existant. */
+/**
+ * Modification du nom, de l'email ou du rôle d'un administrateur existant.
+ *
+ * Champs contrôlés : un <form action={...}> vide les champs non contrôlés
+ * après chaque soumission, y compris en cas d'erreur -on ne veut pas faire
+ * retaper les trois champs pour corriger une simple faute de frappe. Ils
+ * repartent des valeurs actuelles du compte à chaque ouverture de la boîte
+ * de dialogue.
+ */
 export function EditAdminDialog({ admin }: { admin: AdminAccount }) {
   const router = useRouter();
   const [open, setOpen] = React.useState(false);
   const [state, formAction] = useActionState<ActionState, FormData>(updateAdminAction, {});
+
+  const [fullName, setFullName] = React.useState(admin.full_name ?? "");
+  const [email, setEmail] = React.useState(admin.email ?? "");
+  const [role, setRole] = React.useState(admin.role);
+
+  const handleOpenChange = (next: boolean) => {
+    setOpen(next);
+    if (next) {
+      setFullName(admin.full_name ?? "");
+      setEmail(admin.email ?? "");
+      setRole(admin.role);
+    }
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -52,7 +73,7 @@ export function EditAdminDialog({ admin }: { admin: AdminAccount }) {
   }, [state, open, router]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button type="button" variant="ghost" size="sm">
           <Pencil aria-hidden="true" />
@@ -76,7 +97,8 @@ export function EditAdminDialog({ admin }: { admin: AdminAccount }) {
               id={`edit-fullName-${admin.user_id}`}
               name="fullName"
               required
-              defaultValue={admin.full_name ?? ""}
+              value={fullName}
+              onChange={(event) => setFullName(event.target.value)}
             />
           </FormField>
 
@@ -86,7 +108,8 @@ export function EditAdminDialog({ admin }: { admin: AdminAccount }) {
               name="email"
               type="email"
               required
-              defaultValue={admin.email ?? ""}
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
             />
           </FormField>
 
@@ -94,7 +117,8 @@ export function EditAdminDialog({ admin }: { admin: AdminAccount }) {
             <select
               id={`edit-role-${admin.user_id}`}
               name="role"
-              defaultValue={admin.role}
+              value={role}
+              onChange={(event) => setRole(event.target.value as "admin" | "super_admin")}
               className={cn(
                 "flex h-11 w-full rounded-full border border-input bg-card px-6 text-sm shadow-sm transition-colors",
                 "hover:border-primary/60",
