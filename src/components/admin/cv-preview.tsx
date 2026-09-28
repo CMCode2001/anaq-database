@@ -22,7 +22,7 @@ export function CvPreview({ url }: { url: string }) {
             title="Aperçu du CV"
             loading="lazy"
             allow="autoplay"
-            className="h-[520px] w-full sm:h-[640px]"
+            className="h-[650px] w-full sm:h-[850px]"
           />
         </div>
       ) : null}

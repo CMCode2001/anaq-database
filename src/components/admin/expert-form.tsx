@@ -45,7 +45,14 @@ function SubmitButton({ label }: { label: string }) {
  * après chaque soumission, y compris en cas d'erreur de validation -on ne
  * veut pas faire retaper toute la fiche pour corriger un seul champ.
  */
-export function ExpertForm({ expert }: { expert?: Expert }) {
+export function ExpertForm({
+  expert,
+  onSaved,
+}: {
+  expert?: Expert;
+  /** Appelé après une modification réussie (pas une création, qui redirige). */
+  onSaved?: () => void;
+}) {
   const action = expert ? updateExpertAction : createExpertAction;
   const [state, formAction] = useActionState<ActionState, FormData>(action, {});
 
@@ -59,8 +66,13 @@ export function ExpertForm({ expert }: { expert?: Expert }) {
   const [notes, setNotes] = useState(expert?.notes ?? "");
 
   useEffect(() => {
-    if (state.success) toast.success("Fiche enregistrée", { description: state.success });
-    else if (state.error) toast.error("Échec de l'enregistrement", { description: state.error });
+    if (state.success) {
+      toast.success("Fiche enregistrée", { description: state.success });
+      onSaved?.();
+    } else if (state.error) {
+      toast.error("Échec de l'enregistrement", { description: state.error });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state]);
 
   return (
