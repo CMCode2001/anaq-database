@@ -11,18 +11,10 @@ export const ORG = {
   appTitle: "Base des experts QA-Doc",
   appSubtitle:
     "Répartition, recherche et gestion du réseau d'experts évaluateurs.",
-  /** Logo officiel, utilisé à l'écran et en favicon. */
+  /** Logo officiel, utilisé à l'écran. */
   logoPath: "/logo-anaqsup.png",
-  /**
-   * Favicon fourni : toque universitaire blanche sur fond transparent.
-   * Lisible sur une barre d'onglets sombre, invisible sur une barre claire.
-   */
-  faviconDark: "/favicon_anaq.png",
-  /**
-   * Même toque composée sur le marine institutionnel, pour les navigateurs
-   * en thème clair.
-   */
-  faviconLight: "/favicon-anaq-clair.png",
+  /** Icône de base de données, lisible sur fond clair comme sur fond sombre. */
+  favicon: "/favicon-database.png",
   /** Dimensions natives du logo, pour préserver ses proportions. */
   logoWidth: 801,
   logoHeight: 304,

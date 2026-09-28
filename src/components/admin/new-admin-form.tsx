@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { cn } from "@/lib/utils";
 
 function SubmitButton() {
@@ -33,8 +34,8 @@ function SubmitButton() {
  *
  * Crée directement le compte Supabase Auth (email confirmé) et l'habilite
  * dans `admin_users` -aucune étape manuelle dans le tableau de bord Supabase.
- * Un mot de passe temporaire est généré côté serveur et affiché une seule
- * fois : à communiquer à la personne concernée par un canal sûr.
+ * Le mot de passe peut être choisi ici même ; laissé vide, un mot de passe
+ * temporaire est généré côté serveur et affiché une seule fois.
  */
 export function NewAdminForm() {
   const [state, formAction] = useActionState<ActionState, FormData>(createAdminAction, {});
@@ -42,6 +43,7 @@ export function NewAdminForm() {
 
   useEffect(() => {
     if (state.error) toast.error("Échec de la création", { description: state.error });
+    else if (state.success && !state.tempPassword) toast.success(state.success);
     setCopied(false);
   }, [state]);
 
@@ -53,36 +55,54 @@ export function NewAdminForm() {
 
   return (
     <div className="space-y-4">
-      <form action={formAction} className="grid gap-4 sm:grid-cols-[1fr_1fr_12rem_auto] sm:items-end">
-        <FormField id="fullName" label="Nom complet" required>
-          <Input id="fullName" name="fullName" required placeholder="Prénom Nom" />
-        </FormField>
+      <form action={formAction} className="space-y-4">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <FormField id="fullName" label="Nom complet" required>
+            <Input id="fullName" name="fullName" required placeholder="Prénom Nom" />
+          </FormField>
 
-        <FormField id="email" label="Adresse email" required>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            required
-            placeholder="nom@organisation.org"
-          />
-        </FormField>
+          <FormField id="email" label="Adresse email" required>
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              required
+              placeholder="nom@organisation.org"
+            />
+          </FormField>
+        </div>
 
-        <FormField id="role" label="Rôle" required>
-          <select
-            id="role"
-            name="role"
-            defaultValue="admin"
-            className={cn(
-              "flex h-11 w-full rounded-full border border-input bg-card px-6 text-sm shadow-sm transition-colors",
-              "hover:border-primary/60",
-              "focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--background)]",
-            )}
+        <div className="grid gap-4 sm:grid-cols-[1fr_12rem]">
+          <FormField
+            id="password"
+            label="Mot de passe"
+            hint="Laisser vide pour générer automatiquement un mot de passe."
           >
-            <option value="admin">Administrateur</option>
-            <option value="super_admin">Super administrateur</option>
-          </select>
-        </FormField>
+            <PasswordInput
+              id="password"
+              name="password"
+              minLength={8}
+              placeholder="8 caractères minimum"
+              autoComplete="new-password"
+            />
+          </FormField>
+
+          <FormField id="role" label="Rôle" required>
+            <select
+              id="role"
+              name="role"
+              defaultValue="admin"
+              className={cn(
+                "flex h-11 w-full rounded-full border border-input bg-card px-6 text-sm shadow-sm transition-colors",
+                "hover:border-primary/60",
+                "focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--background)]",
+              )}
+            >
+              <option value="admin">Administrateur</option>
+              <option value="super_admin">Super administrateur</option>
+            </select>
+          </FormField>
+        </div>
 
         <SubmitButton />
       </form>

@@ -25,14 +25,8 @@ export const metadata: Metadata = {
   description: ORG.appSubtitle,
   applicationName: ORG.appTitle,
   icons: {
-    // Le favicon fourni est blanc sur fond transparent : invisible sur une
-    // barre d'onglets claire. On sert donc la variante sur fond marine aux
-    // navigateurs en theme clair, et l'original aux themes sombres.
-    icon: [
-      { url: ORG.faviconLight, media: "(prefers-color-scheme: light)" },
-      { url: ORG.faviconDark, media: "(prefers-color-scheme: dark)" },
-    ],
-    apple: ORG.faviconLight,
+    icon: ORG.favicon,
+    apple: ORG.favicon,
   },
   robots: {
     // Application interne : pas d'indexation par les moteurs de recherche.

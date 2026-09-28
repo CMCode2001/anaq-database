@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowLeft, ShieldAlert } from "lucide-react";
+import { ShieldAlert } from "lucide-react";
 
 import { LoginForm } from "@/components/admin/login-form";
 import { BrandMark } from "@/components/brand-mark";
@@ -61,16 +60,6 @@ export default async function LoginPage({
             <LoginForm redirectTo={redirect} />
           </CardContent>
         </Card>
-
-        <div className="text-center">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground"
-          >
-            <ArrowLeft className="size-4" aria-hidden="true" />
-            Retour à l&apos;accueil
-          </Link>
-        </div>
       </div>
     </div>
   );

@@ -210,6 +210,14 @@ const createAdminSchema = z.object({
     .email("Adresse email invalide."),
   fullName: z.string().trim().min(2, "Le nom est obligatoire.").max(150),
   role: z.enum(["admin", "super_admin"]),
+  // Laissé vide : un mot de passe est généré automatiquement.
+  password: z
+    .string()
+    .trim()
+    .min(8, "Le mot de passe doit contenir au moins 8 caractères.")
+    .max(200)
+    .optional()
+    .or(z.literal("")),
 });
 
 /**
@@ -230,6 +238,7 @@ export async function createAdminAction(
     email: formData.get("email"),
     fullName: formData.get("fullName"),
     role: formData.get("role"),
+    password: formData.get("password") ?? "",
   });
 
   if (!parsed.success) {
@@ -237,11 +246,18 @@ export async function createAdminAction(
   }
 
   try {
-    const { tempPassword } = await createAdmin(parsed.data);
+    const { password, generated } = await createAdmin({
+      ...parsed.data,
+      password: parsed.data.password || undefined,
+    });
     revalidatePath("/admin/team");
     return {
-      success: `Compte créé pour ${parsed.data.email}.`,
-      tempPassword,
+      success: generated
+        ? `Compte créé pour ${parsed.data.email}.`
+        : `Compte créé pour ${parsed.data.email} avec le mot de passe défini.`,
+      // N'est renvoyé au navigateur que s'il a été généré : un mot de passe
+      // choisi par le super-administrateur n'a pas besoin d'être réaffiché.
+      tempPassword: generated ? password : undefined,
     };
   } catch (error) {
     console.error("[admin/team] création impossible", error);

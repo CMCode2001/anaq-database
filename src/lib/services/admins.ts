@@ -39,20 +39,25 @@ export interface CreateAdminInput {
   email: string;
   fullName: string;
   role: "admin" | "super_admin";
+  /** Mot de passe choisi par le super-administrateur ; généré si absent. */
+  password?: string;
 }
 
-/** Mot de passe temporaire à usage unique : l'admin invité devra le changer. */
+/** Mot de passe temporaire à usage unique, utilisé si aucun n'est fourni. */
 function generateTemporaryPassword(): string {
   return randomBytes(15).toString("base64url");
 }
 
-export async function createAdmin(input: CreateAdminInput): Promise<{ tempPassword: string }> {
+export async function createAdmin(
+  input: CreateAdminInput,
+): Promise<{ password: string; generated: boolean }> {
   const client = createAdminClient();
-  const tempPassword = generateTemporaryPassword();
+  const generated = !input.password;
+  const password = input.password ?? generateTemporaryPassword();
 
   const { data, error } = await client.auth.admin.createUser({
     email: input.email,
-    password: tempPassword,
+    password,
     email_confirm: true,
   });
 
@@ -78,7 +83,7 @@ export async function createAdmin(input: CreateAdminInput): Promise<{ tempPasswo
     );
   }
 
-  return { tempPassword };
+  return { password, generated };
 }
 
 export async function setAdminActive(
