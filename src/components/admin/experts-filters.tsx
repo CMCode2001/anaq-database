@@ -28,10 +28,12 @@ interface ExpertsFiltersProps {
 /**
  * Recherche et filtres de la liste des experts.
  *
- * Trois filtres : le domaine scientifique, la région géographique et la
- * catégorie de profession -les trois axes de répartition mis en avant sur
- * le tableau de bord. La recherche libre couvre le nom, l'établissement,
- * la nationalité et la spécialité précise.
+ * La recherche libre ne porte que sur ce qui décrit l'expert lui-même (nom,
+ * nationalité, spécialité) : mélangée à l'établissement, « Diop » faisait
+ * aussi remonter tout le monde à l'Université Cheikh Anta Diop. L'
+ * établissement a donc son propre champ, en ET avec les autres filtres.
+ * Domaine, région et catégorie de profession restent les trois axes de
+ * répartition mis en avant sur le tableau de bord.
  */
 export function ExpertsFilters({
   query,
@@ -44,11 +46,16 @@ export function ExpertsFilters({
   const searchParams = useSearchParams();
 
   const [search, setSearch] = React.useState(query.search ?? "");
+  const [institution, setInstitution] = React.useState(query.institution ?? "");
   const [, startTransition] = React.useTransition();
 
   React.useEffect(() => {
     setSearch(query.search ?? "");
   }, [query.search]);
+
+  React.useEffect(() => {
+    setInstitution(query.institution ?? "");
+  }, [query.institution]);
 
   const pushWith = React.useCallback(
     (updates: Record<string, string | undefined>) => {
@@ -81,26 +88,54 @@ export function ExpertsFilters({
     return () => clearTimeout(timer);
   }, [search, query.search, pushWith]);
 
+  React.useEffect(() => {
+    const current = query.institution ?? "";
+    if (institution === current) return;
+
+    const timer = setTimeout(() => {
+      pushWith({ institution: institution.trim() || undefined });
+    }, 400);
+
+    return () => clearTimeout(timer);
+  }, [institution, query.institution, pushWith]);
+
   const hasActiveFilters = Boolean(
-    query.search || query.domain || query.region || query.professionCategory,
+    query.search ||
+      query.institution ||
+      query.domain ||
+      query.region ||
+      query.professionCategory,
   );
 
   return (
     <div className="space-y-4 rounded-2xl border border-border bg-card p-5 shadow-sm no-print">
-      <div className="min-w-0 space-y-2">
-        <Label htmlFor="search">Recherche</Label>
-        <div className="relative">
-          <Search
-            className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
-            aria-hidden="true"
-          />
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="min-w-0 space-y-2">
+          <Label htmlFor="search">Recherche</Label>
+          <div className="relative">
+            <Search
+              className="pointer-events-none absolute left-4 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+              aria-hidden="true"
+            />
+            <Input
+              id="search"
+              type="search"
+              value={search}
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Nom, nationalité, spécialité…"
+              className="pl-11"
+            />
+          </div>
+        </div>
+
+        <div className="min-w-0 space-y-2">
+          <Label htmlFor="institution-search">Établissement</Label>
           <Input
-            id="search"
+            id="institution-search"
             type="search"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="Nom, établissement, nationalité, spécialité…"
-            className="pl-11"
+            value={institution}
+            onChange={(event) => setInstitution(event.target.value)}
+            placeholder="ex. Université Cheikh Anta Diop"
           />
         </div>
       </div>
@@ -181,6 +216,7 @@ export function ExpertsFilters({
             onClick={() =>
               pushWith({
                 search: undefined,
+                institution: undefined,
                 domain: undefined,
                 region: undefined,
                 professionCategory: undefined,

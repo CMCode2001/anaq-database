@@ -56,7 +56,10 @@ export function ExpertRow({ expert }: { expert: Expert }) {
       </TableCell>
 
       <TableCell className="max-w-[14rem]">
-        <Badge variant="outline" title={expert.domain}>
+        <Badge
+          variant={expert.domain === "Hors domaine" ? "destructive" : "outline"}
+          title={expert.domain}
+        >
           {truncate(expert.domain, 26)}
         </Badge>
       </TableCell>

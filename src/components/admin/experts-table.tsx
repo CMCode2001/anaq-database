@@ -38,7 +38,7 @@ export function ExpertsTable({
 }) {
   if (result.items.length === 0) {
     const filtered = Boolean(
-      query.search || query.domain || query.region || query.professionCategory,
+      query.search || query.institution || query.domain || query.region || query.professionCategory,
     );
 
     return (

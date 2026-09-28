@@ -31,7 +31,10 @@ const COLUMN_WIDTHS = [18, 18, 18, 20, 22, 34, 30, 22, 32, 40, 40, 18];
 
 export function buildExpertsWorkbook(
   experts: Expert[],
-  query: Pick<ExpertQuery, "search" | "domain" | "region" | "professionCategory">,
+  query: Pick<
+    ExpertQuery,
+    "search" | "institution" | "domain" | "region" | "professionCategory"
+  >,
 ): Buffer {
   const rows = experts.map((expert) => [
     formatFirstName(expert.firstName),
@@ -63,6 +66,7 @@ export function buildExpertsWorkbook(
     [],
     ["Date de génération", formatDateTime(new Date())],
     ["Recherche", query.search ?? "-"],
+    ["Filtre établissement", query.institution ?? "-"],
     ["Filtre domaine", query.domain ?? "-"],
     ["Filtre région", query.region ?? "-"],
     ["Filtre catégorie de profession", query.professionCategory ?? "-"],

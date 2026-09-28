@@ -29,6 +29,7 @@ export async function listExpertsForExport(query: ExpertQuery): Promise<Expert[]
   return repository.listAll(
     {
       search: query.search,
+      institution: query.institution,
       domain: query.domain,
       region: query.region,
       professionCategory: query.professionCategory,

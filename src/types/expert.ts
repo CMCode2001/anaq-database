@@ -50,6 +50,7 @@ export type SortDirection = "asc" | "desc";
 /** Critères de recherche / filtrage de la liste administrateur. */
 export interface ExpertQuery {
   search?: string;
+  institution?: string;
   domain?: string;
   region?: string;
   professionCategory?: string;

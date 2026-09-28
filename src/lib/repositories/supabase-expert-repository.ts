@@ -262,9 +262,19 @@ function toRow(input: ExpertInput) {
 interface FilterableQuery<Self> {
   or(filters: string): Self;
   eq(column: string, value: string): Self;
+  ilike(column: string, pattern: string): Self;
 }
 
-/** Applique les filtres de recherche communs à la liste et aux exports. */
+/**
+ * Applique les filtres de recherche communs à la liste et aux exports.
+ *
+ * La recherche libre ne porte que sur les champs qui décrivent l'expert
+ * lui-même (nom, nationalité, spécialité) -pas sur l'établissement.
+ * `institution` reste possible via son propre filtre, en ET séparé :
+ * mélangé à la recherche libre, il produisait des faux positifs impossibles
+ * à distinguer d'une vraie correspondance de nom (chercher « Diop » faisait
+ * aussi remonter tout le monde à l'Université Cheikh Anta Diop).
+ */
 function applyFilters<T extends FilterableQuery<T>>(
   builder: T,
   query: Omit<ExpertQuery, "page" | "pageSize">,
@@ -278,12 +288,16 @@ function applyFilters<T extends FilterableQuery<T>>(
         [
           `first_name.ilike.%${term}%`,
           `last_name.ilike.%${term}%`,
-          `institution.ilike.%${term}%`,
           `nationality.ilike.%${term}%`,
           `specialty_raw.ilike.%${term}%`,
         ].join(","),
       );
     }
+  }
+
+  if (query.institution) {
+    const term = sanitizePattern(query.institution);
+    if (term) request = request.ilike("institution", `%${term}%`);
   }
 
   if (query.domain) request = request.eq("domain", query.domain);

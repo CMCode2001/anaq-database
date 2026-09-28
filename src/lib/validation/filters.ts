@@ -29,6 +29,7 @@ const optionalText = z
 
 export const expertQuerySchema = z.object({
   search: optionalText,
+  institution: optionalText,
   domain: optionalText,
   region: optionalText,
   professionCategory: optionalText,
@@ -49,6 +50,7 @@ export function parseExpertQuery(params: RawSearchParams): ExpertQuery {
 
   return expertQuerySchema.parse({
     search: flat.search ?? undefined,
+    institution: flat.institution ?? undefined,
     domain: flat.domain ?? undefined,
     region: flat.region ?? undefined,
     professionCategory: flat.professionCategory ?? undefined,
@@ -63,6 +65,7 @@ export function parseExpertQuery(params: RawSearchParams): ExpertQuery {
 export function buildExpertSearchParams(query: Partial<ExpertQuery>): URLSearchParams {
   const params = new URLSearchParams();
   if (query.search) params.set("search", query.search);
+  if (query.institution) params.set("institution", query.institution);
   if (query.domain) params.set("domain", query.domain);
   if (query.region) params.set("region", query.region);
   if (query.professionCategory) {

@@ -68,7 +68,9 @@ export function ExpertDetailView({ expert }: { expert: Expert }) {
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="flex flex-wrap gap-2">
-            <Badge>{expert.domain}</Badge>
+            <Badge variant={expert.domain === "Hors domaine" ? "destructive" : "default"}>
+              {expert.domain}
+            </Badge>
             <Badge variant="secondary">{expert.professionCategory}</Badge>
             <Badge variant="outline">{expert.region}</Badge>
           </div>

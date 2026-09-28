@@ -166,7 +166,7 @@ function resolveDomain(raw) {
   for (const [pattern, domain] of DOMAIN_KEYWORD_RULES) {
     if (pattern.test(key)) return domain;
   }
-  return "Autre";
+  return "Hors domaine";
 }
 
 function resolveProfessionCategory(raw) {

@@ -24,7 +24,12 @@ export const DOMAINS = [
   "Sciences de l'Éducation et de la Formation",
 ] as const;
 
-export type Domain = (typeof DOMAINS)[number] | "Autre";
+/**
+ * "Hors domaine" est le repli explicite pour un intitulé qui ne correspond
+ * à aucun des huit domaines REESAO -jamais un domaine deviné par défaut. Une
+ * fiche dans ce cas mérite d'être relue et reclassée à la main.
+ */
+export type Domain = (typeof DOMAINS)[number] | "Hors domaine";
 
 function normalize(raw: string): string {
   return raw
@@ -92,7 +97,7 @@ const KEYWORD_RULES: Array<{ pattern: RegExp; domain: Domain }> = [
 
 /** Résout un intitulé de discipline brut vers son domaine canonique. */
 export function resolveDomain(raw: string | null | undefined): Domain {
-  if (!raw?.trim()) return "Autre";
+  if (!raw?.trim()) return "Hors domaine";
 
   // Intitulés composés (« A ; B ; C ») : on classe sur le premier, en gardant
   // le texte complet ailleurs pour l'affichage et la recherche.
@@ -106,5 +111,5 @@ export function resolveDomain(raw: string | null | undefined): Domain {
     if (rule.pattern.test(key)) return rule.domain;
   }
 
-  return "Autre";
+  return "Hors domaine";
 }
