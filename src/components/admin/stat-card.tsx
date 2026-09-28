@@ -34,11 +34,11 @@ const NUMBER_FORMATTER = new Intl.NumberFormat("fr-FR");
 export function StatCard({ label, value, icon, tone = "gold" }: StatCardProps) {
   return (
     <Card className="min-w-0 transition-shadow hover:shadow-md">
-      <CardContent className="flex h-[5.25rem] items-center gap-3 px-4 py-0">
+      <CardContent className="flex h-[4.5rem] items-center gap-3 px-4 py-0">
         <span
           aria-hidden="true"
           className={cn(
-            "flex size-10 shrink-0 items-center justify-center rounded-full [&_svg]:size-[18px]",
+            "flex size-9 shrink-0 items-center justify-center rounded-full [&_svg]:size-4",
             TONES[tone],
           )}
         >
@@ -49,7 +49,7 @@ export function StatCard({ label, value, icon, tone = "gold" }: StatCardProps) {
           {label}
         </p>
 
-        <p className="shrink-0 text-2xl font-bold leading-none tracking-tight tabular-nums text-foreground">
+        <p className="shrink-0 text-xl font-bold leading-none tracking-tight tabular-nums text-foreground">
           {NUMBER_FORMATTER.format(value)}
         </p>
       </CardContent>

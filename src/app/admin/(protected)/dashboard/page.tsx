@@ -40,7 +40,7 @@ export default async function DashboardPage() {
     <div className="mx-auto w-full max-w-6xl space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="text-xl font-bold tracking-tight text-foreground">
             Bonjour {prenom}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
@@ -222,13 +222,13 @@ function DashboardSkeleton() {
     <div className="space-y-5">
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
-          <Skeleton key={index} className="h-[84px] w-full rounded-2xl" />
+          <Skeleton key={index} className="h-[72px] w-full rounded-2xl" />
         ))}
       </div>
-      <Skeleton className="h-[260px] w-full rounded-2xl" />
+      <Skeleton className="h-[240px] w-full rounded-2xl" />
       <div className="grid gap-4 lg:grid-cols-2">
-        <Skeleton className="h-[300px] w-full rounded-2xl" />
-        <Skeleton className="h-[300px] w-full rounded-2xl" />
+        <Skeleton className="h-[280px] w-full rounded-2xl" />
+        <Skeleton className="h-[280px] w-full rounded-2xl" />
       </div>
     </div>
   );

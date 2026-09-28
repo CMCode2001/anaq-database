@@ -35,7 +35,7 @@ export function DonutChart({
 
   return (
     <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-      <div className="relative h-[190px] w-full sm:w-[190px] sm:shrink-0">
+      <div className="relative h-[170px] w-full sm:w-[170px] sm:shrink-0">
         <div role="img" aria-label={ariaLabel} className="h-full w-full">
           <ResponsiveContainer width="100%" height="100%">
             <PieChart>
@@ -74,7 +74,7 @@ export function DonutChart({
 
         {/* Total au centre de l'anneau : la question la plus frequente. */}
         <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-2xl font-bold tabular-nums text-foreground">
+          <span className="text-xl font-bold tabular-nums text-foreground">
             {total}
           </span>
           <span className="text-[11px] text-muted-foreground">

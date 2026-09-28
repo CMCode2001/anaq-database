@@ -98,7 +98,7 @@ export function TeamTable({
               </TableCell>
               <TableCell className="text-muted-foreground">{formatDate(admin.created_at)}</TableCell>
               <TableCell className="text-right">
-                <div className="flex items-center justify-end gap-1">
+                <div className="flex flex-wrap items-center justify-end gap-1">
                   <EditAdminDialog admin={admin} />
                   {admin.user_id === currentUserId ? (
                     <span className="text-xs text-muted-foreground">Votre compte</span>

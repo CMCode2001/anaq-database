@@ -40,7 +40,7 @@ export default async function TeamPage() {
   const admins = await listAdmins();
 
   return (
-    <div className="mx-auto w-full max-w-5xl space-y-5">
+    <div className="mx-auto w-full max-w-7xl space-y-5">
       <h1 className="text-2xl font-bold tracking-tight text-foreground">Administrateurs</h1>
 
       <Card>
