@@ -36,7 +36,8 @@ La restructuration appliquée par ce projet :
      région géographique ;
    - `disciplines.ts` -29 intitulés de discipline (dont des intitulés
      trilingues FR // EN // PT, des combinaisons séparées par « ; » et des
-     doublons de casse) → l'un de dix domaines scientifiques canoniques ;
+     doublons de casse) → l'un des huit domaines du REESAO (Réseau pour
+     l'Excellence de l'Enseignement Supérieur en Afrique de l'Ouest) ;
    - `professions.ts` -28 intitulés de profession → l'une de six catégories
      (Enseignant-Chercheur, Enseignant, Chercheur, Direction / Gouvernance,
      Assurance Qualité / Audit, Doctorant / Assistant).
@@ -165,6 +166,11 @@ Dans **SQL Editor** :
 3. Créer un utilisateur dans **Authentication → Users → Add user** (cocher
    « Auto Confirm User »), remplacer l'adresse dans
    `supabase/migrations/0002_admin_account.sql`, puis l'exécuter
+
+Pour une base déjà en place avant l'adoption de la nomenclature REESAO à huit
+domaines (voir § 1), exécuter en plus `supabase/migrations/0003_reesao_domains.sql`
+-elle met à jour les fiches existantes sans y toucher autrement. Une
+installation neuve n'en a pas besoin : `seed.sql` charge déjà les bons libellés.
 
 ### 5.3 Variables d'environnement
 

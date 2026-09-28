@@ -6,24 +6,22 @@
  * intitulés libres beaucoup plus précis (« Physiologie Animale, Toxicologie,
  * nanomédecine », combinaisons séparées par « ; », fautes de casse…).
  *
- * `resolveDomain` ramène n'importe quel intitulé brut à l'un des dix
- * domaines canoniques ci-dessous, utilisés pour les statistiques et les
- * filtres. Le texte d'origine reste toujours affiché intégralement
- * (`specialtyRaw`) : on classe pour compter, on n'efface jamais la précision
- * saisie par l'expert.
+ * `resolveDomain` ramène n'importe quel intitulé brut à l'un des huit
+ * domaines du REESAO (Réseau pour l'Excellence de l'Enseignement Supérieur
+ * en Afrique de l'Ouest), utilisés pour les statistiques et les filtres. Le
+ * texte d'origine reste toujours affiché intégralement (`specialtyRaw`) : on
+ * classe pour compter, on n'efface jamais la précision saisie par l'expert.
  */
 
 export const DOMAINS = [
-  "Sciences et Technologies",
   "Sciences de la Santé",
-  "Sciences de l'Homme et de la Société",
-  "Sciences Économiques et de Gestion",
-  "Sciences de l'Éducation et de la Formation",
-  "Lettres, Langues et Arts",
+  "Sciences et Technologies",
   "Sciences Agronomiques",
-  "Sciences Juridiques, Politiques et Administratives",
-  "Architecture et Urbanisme",
-  "Sciences de la Terre et de l'Environnement",
+  "Sciences Juridiques, Politiques et de l'Administration",
+  "Sciences Économiques et de Gestion",
+  "Sciences de l'Homme et de la Société",
+  "Lettres, Langues et Arts",
+  "Sciences de l'Éducation et de la Formation",
 ] as const;
 
 export type Domain = (typeof DOMAINS)[number] | "Autre";
@@ -41,6 +39,10 @@ function normalize(raw: string): string {
 /**
  * Correspondances exactes pour les 29 intitulés distincts observés dans la
  * base source (voir scripts/import-experts.mjs pour la ré-extraction).
+ *
+ * Le référentiel REESAO ne prévoit ni « Architecture et Urbanisme » ni
+ * « Sciences de la Terre » comme domaines séparés : ces intitulés rejoignent
+ * Sciences et Technologies, le domaine le plus proche.
  */
 const EXACT_MATCHES: Record<string, Domain> = {
   "sciences et technologies // science and technology // ciencia e tecnologia": "Sciences et Technologies",
@@ -50,10 +52,10 @@ const EXACT_MATCHES: Record<string, Domain> = {
   "sciences de l'education et de la formation // education and training sciences // ciencias da educacao e da formacao": "Sciences de l'Éducation et de la Formation",
   "lettres, langues et arts // literature, languages and the arts // literatura, linguas e artes": "Lettres, Langues et Arts",
   "sciences agronomiques // agricultural sciences // ciencias agrarias": "Sciences Agronomiques",
-  "sciences juridiques, politiques et administratives // law, politics and public administration // direito, politica e administracao publica": "Sciences Juridiques, Politiques et Administratives",
-  "ciencias da terra": "Sciences de la Terre et de l'Environnement",
-  "architecture et urbanisme": "Architecture et Urbanisme",
-  "securite, strategie et defense": "Sciences Juridiques, Politiques et Administratives",
+  "sciences juridiques, politiques et administratives // law, politics and public administration // direito, politica e administracao publica": "Sciences Juridiques, Politiques et de l'Administration",
+  "ciencias da terra": "Sciences et Technologies",
+  "architecture et urbanisme": "Sciences et Technologies",
+  "securite, strategie et defense": "Sciences Juridiques, Politiques et de l'Administration",
   "ciencias da educacao": "Sciences de l'Éducation et de la Formation",
   "ciencia e tecnologia de alimentos": "Sciences Agronomiques",
   "physiologie animale, toxicologie, nanomedecine": "Sciences de la Santé",
@@ -70,21 +72,22 @@ const EXACT_MATCHES: Record<string, Domain> = {
   "sciences de l'education et de la formation ; sciences de la sante ; sciences economiques et de gestion": "Sciences de l'Éducation et de la Formation",
   "gestion de projet": "Sciences Économiques et de Gestion",
   "sciences et techniques des activites physiques et sportives-jeunesse et loisirs (staps-jl)": "Sciences de la Santé",
-  "geographie physique / hydrologie et gestion integree des ressources en eau": "Sciences de la Terre et de l'Environnement",
+  "geographie physique / hydrologie et gestion integree des ressources en eau": "Sciences et Technologies",
 };
 
 /** Filet de sécurité par mots-clés, pour un intitulé futur non répertorié. */
 const KEYWORD_RULES: Array<{ pattern: RegExp; domain: Domain }> = [
   { pattern: /sante|medic|medec|sant\b|clinique|pharma|psycholog/, domain: "Sciences de la Santé" },
   { pattern: /agro|agricol|alimen|sol|soil|crop/, domain: "Sciences Agronomiques" },
-  { pattern: /architect|urban/, domain: "Architecture et Urbanisme" },
-  { pattern: /terre|geograph|hydrolog|environnement|climat/, domain: "Sciences de la Terre et de l'Environnement" },
-  { pattern: /droit|juridi|politi|administrati|defense|strateg|securite/, domain: "Sciences Juridiques, Politiques et Administratives" },
+  { pattern: /droit|juridi|politi|administrati|defense|strateg|securite/, domain: "Sciences Juridiques, Politiques et de l'Administration" },
   { pattern: /economi|gestion|management|finance/, domain: "Sciences Économiques et de Gestion" },
   { pattern: /education|formation|pedagog|enseignement/, domain: "Sciences de l'Éducation et de la Formation" },
   { pattern: /lettre|langue|art|litterature|philosoph/, domain: "Lettres, Langues et Arts" },
   { pattern: /homme|societe|social|humanit|communication|religion/, domain: "Sciences de l'Homme et de la Société" },
-  { pattern: /technolog|science|ingenier|informati|spectroscop/, domain: "Sciences et Technologies" },
+  {
+    pattern: /technolog|science|ingenier|informati|spectroscop|architect|urban|terre|geograph|hydrolog|environnement|climat/,
+    domain: "Sciences et Technologies",
+  },
 ];
 
 /** Résout un intitulé de discipline brut vers son domaine canonique. */

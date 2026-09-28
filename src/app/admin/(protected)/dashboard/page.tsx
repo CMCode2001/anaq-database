@@ -128,7 +128,7 @@ async function DashboardContent() {
           <div className="space-y-1">
             <CardTitle>Répartition par domaine scientifique</CardTitle>
             <CardDescription>
-              Les dix macro-domaines utilisés pour classer les disciplines.
+              Les huit domaines du REESAO utilisés pour classer les disciplines.
             </CardDescription>
           </div>
           <LayoutGrid

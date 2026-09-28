@@ -86,10 +86,10 @@ const DOMAINS = {
   "sciences de l'education et de la formation // education and training sciences // ciencias da educacao e da formacao": "Sciences de l'Éducation et de la Formation",
   "lettres, langues et arts // literature, languages and the arts // literatura, linguas e artes": "Lettres, Langues et Arts",
   "sciences agronomiques // agricultural sciences // ciencias agrarias": "Sciences Agronomiques",
-  "sciences juridiques, politiques et administratives // law, politics and public administration // direito, politica e administracao publica": "Sciences Juridiques, Politiques et Administratives",
-  "ciencias da terra": "Sciences de la Terre et de l'Environnement",
-  "architecture et urbanisme": "Architecture et Urbanisme",
-  "securite, strategie et defense": "Sciences Juridiques, Politiques et Administratives",
+  "sciences juridiques, politiques et administratives // law, politics and public administration // direito, politica e administracao publica": "Sciences Juridiques, Politiques et de l'Administration",
+  "ciencias da terra": "Sciences et Technologies",
+  "architecture et urbanisme": "Sciences et Technologies",
+  "securite, strategie et defense": "Sciences Juridiques, Politiques et de l'Administration",
   "ciencias da educacao": "Sciences de l'Éducation et de la Formation",
   "ciencia e tecnologia de alimentos": "Sciences Agronomiques",
   "physiologie animale, toxicologie, nanomedecine": "Sciences de la Santé",
@@ -106,20 +106,18 @@ const DOMAINS = {
   "sciences de l'education et de la formation ; sciences de la sante ; sciences economiques et de gestion": "Sciences de l'Éducation et de la Formation",
   "gestion de projet": "Sciences Économiques et de Gestion",
   "sciences et techniques des activites physiques et sportives-jeunesse et loisirs (staps-jl)": "Sciences de la Santé",
-  "geographie physique / hydrologie et gestion integree des ressources en eau": "Sciences de la Terre et de l'Environnement",
+  "geographie physique / hydrologie et gestion integree des ressources en eau": "Sciences et Technologies",
 };
 
 const DOMAIN_KEYWORD_RULES = [
   [/sante|medic|medec|clinique|pharma|psycholog/, "Sciences de la Santé"],
   [/agro|agricol|alimen|sol|soil|crop/, "Sciences Agronomiques"],
-  [/architect|urban/, "Architecture et Urbanisme"],
-  [/terre|geograph|hydrolog|environnement|climat/, "Sciences de la Terre et de l'Environnement"],
-  [/droit|juridi|politi|administrati|defense|strateg|securite/, "Sciences Juridiques, Politiques et Administratives"],
+  [/droit|juridi|politi|administrati|defense|strateg|securite/, "Sciences Juridiques, Politiques et de l'Administration"],
   [/economi|gestion|management|finance/, "Sciences Économiques et de Gestion"],
   [/education|formation|pedagog|enseignement/, "Sciences de l'Éducation et de la Formation"],
   [/lettre|langue|art|litterature|philosoph/, "Lettres, Langues et Arts"],
   [/homme|societe|social|humanit|communication|religion/, "Sciences de l'Homme et de la Société"],
-  [/technolog|science|ingenier|informati|spectroscop/, "Sciences et Technologies"],
+  [/technolog|science|ingenier|informati|spectroscop|architect|urban|terre|geograph|hydrolog|environnement|climat/, "Sciences et Technologies"],
 ];
 
 /* -------------------------------------------------------------------------- */
