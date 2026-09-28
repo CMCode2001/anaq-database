@@ -16,23 +16,42 @@ import type { Database } from "@/types/database";
  * super-administrateur ? ») est vérifiée en amont, dans les Server Actions.
  */
 
-export type AdminAccount = Database["public"]["Tables"]["admin_users"]["Row"];
+export type AdminAccount = Database["public"]["Tables"]["admin_users"]["Row"] & {
+  /** Dernière connexion réussie, telle que suivie par Supabase Auth. */
+  lastSignInAt: string | null;
+};
 
 export class AdminManagementError extends Error {}
 
 export async function listAdmins(): Promise<AdminAccount[]> {
   const client = createAdminClient();
 
-  const { data, error } = await client
-    .from("admin_users")
-    .select("user_id, email, full_name, role, is_active, created_at")
-    .order("created_at", { ascending: true });
+  const [{ data, error }, { data: authUsers, error: authError }] = await Promise.all([
+    client
+      .from("admin_users")
+      .select("user_id, email, full_name, role, is_active, created_at")
+      .order("created_at", { ascending: true }),
+    // La date de dernière connexion vit dans Supabase Auth (auth.users), pas
+    // dans admin_users : un seul appel à la place d'un par administrateur.
+    // 200 comptes couvre très largement une équipe d'administrateurs.
+    client.auth.admin.listUsers({ page: 1, perPage: 200 }),
+  ]);
 
   if (error) {
     throw new AdminManagementError("Impossible de charger la liste des administrateurs.");
   }
+  if (authError) {
+    throw new AdminManagementError("Impossible de charger les dates de connexion.");
+  }
 
-  return data ?? [];
+  const lastSignInByUserId = new Map(
+    authUsers.users.map((user) => [user.id, user.last_sign_in_at ?? null]),
+  );
+
+  return (data ?? []).map((admin) => ({
+    ...admin,
+    lastSignInAt: lastSignInByUserId.get(admin.user_id) ?? null,
+  }));
 }
 
 export interface CreateAdminInput {

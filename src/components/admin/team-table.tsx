@@ -19,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatDate } from "@/lib/utils";
+import { formatDate, formatDateTime } from "@/lib/utils";
 import type { AdminAccount } from "@/lib/services/admins";
 
 /** Doit être un descendant du <form>, pas le composant qui le rend : c'est la
@@ -74,6 +74,7 @@ export function TeamTable({
             <TableHead>Email</TableHead>
             <TableHead>Rôle</TableHead>
             <TableHead>Statut</TableHead>
+            <TableHead>Dernière connexion</TableHead>
             <TableHead>Ajouté le</TableHead>
             <TableHead className="text-right">
               <span className="sr-only">Actions</span>
@@ -95,6 +96,9 @@ export function TeamTable({
                 <Badge variant={admin.is_active ? "success" : "destructive"}>
                   {admin.is_active ? "Actif" : "Désactivé"}
                 </Badge>
+              </TableCell>
+              <TableCell className="text-muted-foreground">
+                {admin.lastSignInAt ? formatDateTime(admin.lastSignInAt) : "Jamais connecté"}
               </TableCell>
               <TableCell className="text-muted-foreground">{formatDate(admin.created_at)}</TableCell>
               <TableCell className="text-right">
