@@ -15,7 +15,20 @@ import { Button } from "@/components/ui/button";
 import { FormField } from "@/components/ui/form-field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { DOMAINS } from "@/lib/data/disciplines";
+import { PROFESSION_CATEGORIES } from "@/lib/data/professions";
+import { cn } from "@/lib/utils";
 import type { Expert } from "@/types/expert";
+
+/** Domaine "Hors domaine" ajouté en fin de liste : sélectionnable, jamais deviné par défaut. */
+const DOMAIN_OPTIONS = [...DOMAINS, "Hors domaine"] as const;
+const PROFESSION_CATEGORY_OPTIONS = [...PROFESSION_CATEGORIES, "Autre"] as const;
+
+const SELECT_CLASSNAME = cn(
+  "flex h-11 w-full rounded-full border border-input bg-card px-6 text-sm shadow-sm transition-colors",
+  "hover:border-primary/60",
+  "focus-visible:border-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] focus-visible:ring-offset-1 focus-visible:ring-offset-[var(--background)]",
+);
 
 function SubmitButton({ label }: { label: string }) {
   const { pending } = useFormStatus();
@@ -35,11 +48,13 @@ function SubmitButton({ label }: { label: string }) {
 /**
  * Formulaire de création / édition d'une fiche expert.
  *
- * Les champs reprennent volontairement les colonnes du fichier Excel source
- * (prénom, nom, nationalité, établissement, profession, discipline, CV) :
- * la classification canonique (pays, région, domaine, catégorie de
- * profession) est déduite automatiquement côté serveur, voir
- * `src/lib/validation/expert.ts`.
+ * Domaine et catégorie de profession sont des menus déroulants (listes
+ * fermées : les huit domaines REESAO, les six catégories de profession) —
+ * plus rapide à saisir qu'un texte libre, et sans risque de mauvaise
+ * classification. Le reste des champs reprend les colonnes du fichier
+ * Excel source (prénom, nom, nationalité, établissement, profession,
+ * discipline, CV) ; la nationalité seule est encore classée automatiquement
+ * (pays, région), voir `src/lib/validation/expert.ts`.
  *
  * Champs contrôlés : un <form action={...}> vide les champs non contrôlés
  * après chaque soumission, y compris en cas d'erreur de validation -on ne
@@ -61,7 +76,11 @@ export function ExpertForm({
   const [nationality, setNationality] = useState(expert?.nationalityRaw ?? "");
   const [institution, setInstitution] = useState(expert?.institution ?? "");
   const [profession, setProfession] = useState(expert?.professionRaw ?? "");
+  const [professionCategory, setProfessionCategory] = useState(
+    expert?.professionCategory ?? PROFESSION_CATEGORY_OPTIONS[0],
+  );
   const [specialty, setSpecialty] = useState(expert?.specialtyRaw ?? "");
+  const [domain, setDomain] = useState(expert?.domain ?? DOMAIN_OPTIONS[0]);
   const [cvUrl, setCvUrl] = useState(expert?.cvUrl ?? "");
   const [notes, setNotes] = useState(expert?.notes ?? "");
 
@@ -140,20 +159,49 @@ export function ExpertForm({
           />
         </FormField>
 
-        <FormField
-          id="specialty"
-          label="Discipline / spécialité"
-          required
-          hint="Le domaine scientifique est déduit automatiquement."
-        >
+        <FormField id="professionCategory" label="Catégorie de profession" required>
+          <select
+            id="professionCategory"
+            name="professionCategory"
+            value={professionCategory}
+            onChange={(event) => setProfessionCategory(event.target.value)}
+            className={SELECT_CLASSNAME}
+          >
+            {PROFESSION_CATEGORY_OPTIONS.map((category) => (
+              <option key={category} value={category}>
+                {category}
+              </option>
+            ))}
+          </select>
+        </FormField>
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <FormField id="specialty" label="Discipline / spécialité" required>
           <Input
             id="specialty"
             name="specialty"
             required
             value={specialty}
             onChange={(event) => setSpecialty(event.target.value)}
-            placeholder="ex. Sciences et Technologies"
+            placeholder="ex. Génie logiciel"
           />
+        </FormField>
+
+        <FormField id="domain" label="Domaine" required hint="Les huit domaines du REESAO.">
+          <select
+            id="domain"
+            name="domain"
+            value={domain}
+            onChange={(event) => setDomain(event.target.value)}
+            className={SELECT_CLASSNAME}
+          >
+            {DOMAIN_OPTIONS.map((option) => (
+              <option key={option} value={option}>
+                {option}
+              </option>
+            ))}
+          </select>
         </FormField>
       </div>
 

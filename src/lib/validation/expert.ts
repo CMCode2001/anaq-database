@@ -1,18 +1,19 @@
 import { z } from "zod";
 
-import { resolveDomain } from "@/lib/data/disciplines";
+import { DOMAINS } from "@/lib/data/disciplines";
 import { resolveNationality } from "@/lib/data/nationalities";
-import { resolveProfessionCategory } from "@/lib/data/professions";
+import { PROFESSION_CATEGORIES } from "@/lib/data/professions";
 import type { ExpertInput } from "@/lib/repositories/expert-repository";
 
 /**
  * Schéma du formulaire (création / édition d'une fiche expert).
  *
- * Volontairement calqué sur les colonnes de la base source (prénom, nom,
- * nationalité, établissement, profession, discipline, CV) : un administrateur
- * qui a l'habitude du fichier Excel retrouve les mêmes champs. La
- * classification (nationalité canonique, domaine, catégorie de profession)
- * est déduite automatiquement côté serveur -voir `toExpertInput` ci-dessous.
+ * Domaine et catégorie de profession sont des listes fermées (huit domaines
+ * REESAO, six catégories de profession) : on les fait choisir directement
+ * via un menu plutôt que de les deviner à partir d'un texte libre -plus
+ * rapide à saisir, et sans risque de mauvaise classification. La
+ * nationalité reste du texte libre (nouveaux gentilés possibles) ; elle est
+ * classée automatiquement (pays, région) dans `toExpertInput` ci-dessous.
  */
 export const expertFormSchema = z.object({
   firstName: z
@@ -36,11 +37,15 @@ export const expertFormSchema = z.object({
     .trim()
     .min(2, "La profession est obligatoire.")
     .max(200),
+  professionCategory: z.enum(PROFESSION_CATEGORIES, {
+    message: "La catégorie de profession est obligatoire.",
+  }),
   specialty: z
     .string()
     .trim()
     .min(2, "La discipline est obligatoire.")
     .max(300),
+  domain: z.enum(DOMAINS, { message: "Le domaine est obligatoire." }),
   cvUrl: z
     .string()
     .trim()
@@ -54,10 +59,9 @@ export const expertFormSchema = z.object({
 export type ExpertFormValues = z.infer<typeof expertFormSchema>;
 
 /**
- * Traduit les valeurs du formulaire vers le contrat du repository, en
- * appliquant la même classification que l'import initial : la base reste
- * cohérente que la fiche vienne du fichier Excel d'origine ou d'une saisie
- * manuelle ultérieure.
+ * Traduit les valeurs du formulaire vers le contrat du repository. Domaine
+ * et catégorie de profession viennent directement du formulaire ; seule la
+ * nationalité est encore résolue automatiquement (pays, région, ISO2).
  */
 export function toExpertInput(values: ExpertFormValues): ExpertInput {
   const nationalityInfo = resolveNationality(values.nationality);
@@ -72,8 +76,8 @@ export function toExpertInput(values: ExpertFormValues): ExpertInput {
     region: nationalityInfo.region,
     institution: values.institution?.trim() || null,
     professionRaw: values.profession,
-    professionCategory: resolveProfessionCategory(values.profession),
-    domain: resolveDomain(values.specialty),
+    professionCategory: values.professionCategory,
+    domain: values.domain,
     specialtyRaw: values.specialty,
     cvUrl: values.cvUrl?.trim() || null,
     notes: values.notes?.trim() || null,
