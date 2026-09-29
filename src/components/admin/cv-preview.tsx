@@ -4,14 +4,23 @@ import { Button } from "@/components/ui/button";
 import { driveEmbedUrl } from "@/lib/drive";
 
 /**
- * Aperçu intégré du CV lorsque le lien est reconnu comme un fichier Google
- * Drive, avec le lien d'ouverture en repli -indispensable pour un fichier
- * non partagé publiquement (l'aperçu affiche alors l'écran de demande
- * d'accès de Google, à l'intérieur du cadre) ou un lien qui n'est pas un
- * lien Drive.
+ * Aperçu intégré du CV.
+ *
+ * Deux cas s'affichent en aperçu : un lien Google Drive reconnu (via son URL
+ * `/preview` dédiée à l'intégration), ou un PDF hébergé directement (upload
+ * dans Supabase Storage, ou tout autre lien direct vers un .pdf) -les
+ * navigateurs savent afficher un PDF nativement dans une iframe. Un fichier
+ * Word ou un lien non reconnu retombe sur le seul lien d'ouverture : aucun
+ * navigateur ne rend un .docx dans une iframe.
+ *
+ * Le lien d'ouverture reste toujours affiché, indispensable pour un fichier
+ * Drive non partagé publiquement (l'aperçu affiche alors l'écran de demande
+ * d'accès de Google, à l'intérieur du cadre).
  */
 export function CvPreview({ url }: { url: string }) {
-  const embedUrl = driveEmbedUrl(url);
+  const driveUrl = driveEmbedUrl(url);
+  const isDirectPdf = !driveUrl && url.toLowerCase().split("?")[0]?.endsWith(".pdf");
+  const embedUrl = driveUrl ?? (isDirectPdf ? url : null);
 
   return (
     <div className="space-y-3">
@@ -34,7 +43,7 @@ export function CvPreview({ url }: { url: string }) {
         </a>
       </Button>
 
-      {embedUrl ? (
+      {driveUrl ? (
         <p className="text-xs text-muted-foreground">
           Aperçu vide ou accès demandé ? Le fichier n&apos;est probablement pas partagé en
           « Toute personne disposant du lien » sur Google Drive -un réglage du fichier, pas de

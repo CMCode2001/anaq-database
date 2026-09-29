@@ -2,7 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { Loader2, Save } from "lucide-react";
+import { ExternalLink, Loader2, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useEffect } from "react";
 
@@ -82,6 +82,7 @@ export function ExpertForm({
   const [specialty, setSpecialty] = useState(expert?.specialtyRaw ?? "");
   const [domain, setDomain] = useState(expert?.domain ?? DOMAIN_OPTIONS[0]);
   const [cvUrl, setCvUrl] = useState(expert?.cvUrl ?? "");
+  const [cvFileName, setCvFileName] = useState<string | null>(null);
   const [notes, setNotes] = useState(expert?.notes ?? "");
 
   useEffect(() => {
@@ -205,16 +206,60 @@ export function ExpertForm({
         </FormField>
       </div>
 
-      <FormField id="cvUrl" label="Lien du CV" hint="URL complète (Google Drive, etc.).">
-        <Input
+      <div className="space-y-4 rounded-2xl border border-dashed border-border p-4">
+        <FormField
+          id="cvFile"
+          label="CV -téléverser un fichier"
+          hint="PDF ou Word, 10 Mo maximum. Remplace le lien ci-dessous s'il est aussi renseigné."
+        >
+          <input
+            id="cvFile"
+            name="cvFile"
+            type="file"
+            accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            onChange={(event) => setCvFileName(event.target.files?.[0]?.name ?? null)}
+            className={cn(
+              "block w-full text-sm text-foreground",
+              "file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2",
+              "file:text-sm file:font-semibold file:text-primary-foreground hover:file:bg-primary/90",
+            )}
+          />
+        </FormField>
+
+        {cvFileName ? (
+          <p className="text-xs text-muted-foreground">
+            Fichier sélectionné : <span className="font-medium text-foreground">{cvFileName}</span>
+          </p>
+        ) : expert?.cvUrl ? (
+          <p className="text-xs text-muted-foreground">
+            CV actuel :{" "}
+            <a
+              href={expert.cvUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 font-medium text-gold-ink hover:underline"
+            >
+              ouvrir le document
+              <ExternalLink className="size-3" aria-hidden="true" />
+            </a>
+          </p>
+        ) : null}
+
+        <FormField
           id="cvUrl"
-          name="cvUrl"
-          type="url"
-          value={cvUrl}
-          onChange={(event) => setCvUrl(event.target.value)}
-          placeholder="https://"
-        />
-      </FormField>
+          label="Ou coller un lien"
+          hint="Google Drive, etc. Ignoré si un fichier est téléversé ci-dessus."
+        >
+          <Input
+            id="cvUrl"
+            name="cvUrl"
+            type="url"
+            value={cvUrl}
+            onChange={(event) => setCvUrl(event.target.value)}
+            placeholder="https://"
+          />
+        </FormField>
+      </div>
 
       <FormField id="notes" label="Notes internes">
         <Textarea

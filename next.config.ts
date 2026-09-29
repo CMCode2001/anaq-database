@@ -7,6 +7,13 @@ const nextConfig: NextConfig = {
     // Le build ne doit pas échouer sur une règle de style.
     ignoreDuringBuilds: false,
   },
+  experimental: {
+    // Limite par défaut (1 Mo) trop basse pour un CV en PDF ; alignée sur
+    // src/lib/storage/cv.ts (MAX_SIZE_BYTES).
+    serverActions: {
+      bodySizeLimit: "10mb",
+    },
+  },
   async redirects() {
     return [
       // Application interne sans vitrine publique : on tombe directement

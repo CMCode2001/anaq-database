@@ -7,6 +7,7 @@ import { z } from "zod";
 import { getAdminIdentity } from "@/lib/auth/guards";
 import { createAdmin, deleteAdmin, setAdminActive, updateAdmin } from "@/lib/services/admins";
 import { createExpert, deleteExpert, updateExpert } from "@/lib/services/experts";
+import { CvUploadError, uploadExpertCv } from "@/lib/storage/cv";
 import { createServerSupabaseClient } from "@/lib/supabase/server";
 import { expertFormSchema, toExpertInput } from "@/lib/validation/expert";
 
@@ -138,10 +139,23 @@ function parseExpertForm(formData: FormData) {
     nationality: formData.get("nationality"),
     institution: formData.get("institution") ?? "",
     profession: formData.get("profession"),
+    professionCategory: formData.get("professionCategory"),
     specialty: formData.get("specialty"),
+    domain: formData.get("domain"),
     cvUrl: formData.get("cvUrl") ?? "",
     notes: formData.get("notes") ?? "",
   });
+}
+
+/**
+ * Un fichier téléversé remplace le lien collé dans le champ CV. Retourne
+ * `undefined` si aucun fichier n'a été choisi -le lien du formulaire
+ * s'applique alors tel quel.
+ */
+async function resolveUploadedCvUrl(formData: FormData): Promise<string | undefined> {
+  const file = formData.get("cvFile");
+  if (!(file instanceof File) || file.size === 0) return undefined;
+  return uploadExpertCv(file);
 }
 
 export async function createExpertAction(
@@ -156,9 +170,18 @@ export async function createExpertAction(
     return { error: parsed.error.issues[0]?.message ?? "Formulaire invalide." };
   }
 
+  let cvUrl = parsed.data.cvUrl;
+  try {
+    cvUrl = (await resolveUploadedCvUrl(formData)) ?? cvUrl;
+  } catch (error) {
+    return {
+      error: error instanceof CvUploadError ? error.message : "Le téléversement du CV a échoué.",
+    };
+  }
+
   let expertId: string;
   try {
-    const expert = await createExpert(toExpertInput(parsed.data));
+    const expert = await createExpert(toExpertInput({ ...parsed.data, cvUrl }));
     expertId = expert.id;
   } catch (error) {
     console.error("[admin] création impossible", error);
@@ -187,8 +210,17 @@ export async function updateExpertAction(
     return { error: parsed.error.issues[0]?.message ?? "Formulaire invalide." };
   }
 
+  let cvUrl = parsed.data.cvUrl;
   try {
-    await updateExpert(id, toExpertInput(parsed.data));
+    cvUrl = (await resolveUploadedCvUrl(formData)) ?? cvUrl;
+  } catch (error) {
+    return {
+      error: error instanceof CvUploadError ? error.message : "Le téléversement du CV a échoué.",
+    };
+  }
+
+  try {
+    await updateExpert(id, toExpertInput({ ...parsed.data, cvUrl }));
   } catch (error) {
     console.error("[admin] mise à jour impossible", error);
     return { error: "La mise à jour de la fiche a échoué." };

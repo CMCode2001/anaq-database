@@ -71,11 +71,16 @@ commentaire dans les trois fichiers de `src/lib/data/`.
   par région géographique (anneau), classement des nationalités et des
   établissements les plus représentés, répartition par catégorie de
   profession.
-- Liste des experts : recherche plein texte (nom, établissement, nationalité,
-  spécialité), filtres par domaine / région / catégorie de profession, tri,
-  pagination.
-- Fiche détaillée avec la classification appliquée, création et modification
-  de fiches, suppression avec confirmation obligatoire.
+- Liste des experts : recherche plein texte (nom, nationalité, spécialité),
+  filtre dédié par établissement, filtres par domaine / région / catégorie
+  de profession, tri, pagination.
+- Fiche détaillée avec la classification appliquée (domaine et catégorie de
+  profession choisis en menu déroulant à la création/modification), aperçu
+  du CV intégré, création et modification de fiches, suppression avec
+  confirmation obligatoire.
+- **CV** : à téléverser directement (PDF ou Word, stocké dans Supabase
+  Storage) ou à renseigner sous forme de lien externe (Google Drive, etc.) —
+  les deux formes coexistent dans la base.
 - Export **Excel** (`.xlsx`) de la liste filtrée.
 - **Administrateurs** (réservé aux super-administrateurs) : ajout d'un
   nouveau compte -création du compte Supabase Auth et de son habilitation en
@@ -166,6 +171,9 @@ Dans **SQL Editor** :
 3. Créer un utilisateur dans **Authentication → Users → Add user** (cocher
    « Auto Confirm User »), remplacer l'adresse dans
    `supabase/migrations/0002_admin_account.sql`, puis l'exécuter
+4. Exécuter `supabase/migrations/0004_cv_storage.sql` (bucket `cvs` pour les
+   CV téléversés, avec ses policies -indispensable pour que le téléversement
+   fonctionne)
 
 Pour une base déjà en place avant l'adoption de la nomenclature REESAO à huit
 domaines (voir § 1), exécuter en plus `supabase/migrations/0003_reesao_domains.sql`
